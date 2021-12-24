@@ -10,6 +10,9 @@ public class UnitSpawner : NetworkBehaviour, IPointerDownHandler
     [SerializeField] private Transform unitSpawnPoint = null;
     [SerializeField] private TMP_Text remainingUnitsText = null;
     [SerializeField] private Image unitProcessImage = null;
+    [SerializeField] private GameObject spawningCanvasParent;
+
+    [Header("Spawner Params")]
     [SerializeField] private int maxUnitQueue = 5;
     [SerializeField] private float spawnMoveRange = 7f;
     [SerializeField] private float unitSpawnDuration = 5f;
@@ -94,6 +97,12 @@ public class UnitSpawner : NetworkBehaviour, IPointerDownHandler
 
     #endregion
     #region Client
+
+
+    public override void OnStartAuthority()
+    {
+        spawningCanvasParent.gameObject.SetActive(true);
+    }
 
     private void UpdateTimerDisplay()
     {

@@ -10,10 +10,37 @@ public class ResourcesDisplay : MonoBehaviour
 
     private void Start()
     {
-        player = NetworkClient.connection.identity.GetComponent<RTSPlayer>();
-        ClientHandleResourcesUpdated(player.GetResources());
-        player.ClientOnResourcesUpdated += ClientHandleResourcesUpdated;
+        if (((RTSNetworkManager)NetworkManager.singleton).DEBUG_MODE == false)
+        {
+            player = NetworkClient.connection.identity.GetComponent<RTSPlayer>();
+            ClientHandleResourcesUpdated(player.GetResources());
+            player.ClientOnResourcesUpdated += ClientHandleResourcesUpdated;
+        }
+
     }
+
+    private void Update()
+    {
+        try
+        {
+            if (player == null)
+            {
+                player = NetworkClient.connection.identity.GetComponent<RTSPlayer>();
+                if (player != null)
+                {
+                    ClientHandleResourcesUpdated(player.GetResources());
+                    player.ClientOnResourcesUpdated += ClientHandleResourcesUpdated;
+                }
+            }
+
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log(e.Message);
+        }
+
+    }
+
 
     private void OnDestroy()
     {

@@ -2,11 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-public class HealthDisplay : MonoBehaviour
+using UnityEngine.EventSystems;
+using System;
+public class HealthDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private Health health = null;
-    [SerializeField] private GameObject healthBarParent = null;
     [SerializeField] private Image healthBarImage = null;
+    [SerializeField] private GameObject healthBarParent;
+
+    public event Action OnPointerEntered;
+    public event Action OnPointerExited;
+
 
     private void Awake() 
     {
@@ -18,18 +24,21 @@ public class HealthDisplay : MonoBehaviour
         health.ClientOnHealthUpdated -= HandleHealthUpdated;
     }
 
-    private void OnMouseEnter() 
-    {
-        healthBarParent.SetActive(true);
-    }
-
-    private void OnMouseExit() 
-    {
-        healthBarParent.SetActive(false);
-    }
-
     private void HandleHealthUpdated(int currentHealth, int maxHealth)
     {
         healthBarImage.fillAmount = (float)currentHealth / maxHealth;
     }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        //healthBarParent.SetActive(true);
+        OnPointerEntered?.Invoke();
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        OnPointerExited?.Invoke();
+        //healthBarParent.SetActive(false);
+    }
+    public void DisplayOrNot(bool status) => healthBarParent?.SetActive(status);
 }

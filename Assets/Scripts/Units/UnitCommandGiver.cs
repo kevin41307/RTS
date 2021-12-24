@@ -7,6 +7,7 @@ public class UnitCommandGiver : MonoBehaviour
 {
     [SerializeField] private UnitSelectionHandler unitSelectionHandler = null;
     [SerializeField] private LayerMask layerMask = new LayerMask();
+    [SerializeField] private LayerMask layerMaskWithoutFog = new LayerMask();
 
     private Camera mainCamera;
 
@@ -37,7 +38,12 @@ public class UnitCommandGiver : MonoBehaviour
             TryTarget(target);
             return;
         }
-
+        if(hit.transform.gameObject.layer == LayerMask.NameToLayer("MinimapFog"))
+        {
+            if (!Physics.Raycast(ray, out hit, Mathf.Infinity, layerMaskWithoutFog)) return;
+            TryMove(hit.point);
+            return;
+        }
         TryMove(hit.point);
 
     }

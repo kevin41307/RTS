@@ -16,6 +16,7 @@ public class GameOverDisplay : MonoBehaviour
     }
     public void LeaveGame()
     {
+        //use Mirror Library to check NetworkManager State in MonoBehaior
         if(NetworkServer.active && NetworkClient.isConnected)
         {
             //stop hosting

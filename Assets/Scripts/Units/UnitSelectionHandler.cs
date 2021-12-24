@@ -13,10 +13,15 @@ public class UnitSelectionHandler : MonoBehaviour
     private Camera mainCamera;
     public List<Unit> SelectedUnits { get; } = new List<Unit>();
 
+    public static bool isPreviewingBuilding = false;
+    public bool IsDisabled() => isPreviewingBuilding;
+
     private void Start() 
     {
         mainCamera = Camera.main;
-        player = NetworkClient.connection.identity.GetComponent<RTSPlayer>();
+        if(((RTSNetworkManager)NetworkManager.singleton).DEBUG_MODE == false)
+            player = NetworkClient.connection.identity.GetComponent<RTSPlayer>();
+
         Unit.AuthorityOnUnitDespawned += AuthorityHandleUnitDespawned;
         GameOverHandler.ClientOnGameOver += ClientHandleGameOver;
     }
@@ -27,6 +32,20 @@ public class UnitSelectionHandler : MonoBehaviour
 
     private void Update()
     {
+        try
+        {
+            if (player == null)
+            {
+                player = NetworkClient.connection.identity.GetComponent<RTSPlayer>();
+            }             
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log(e.Message);
+        }
+
+        if(IsDisabled()) return;
+
         if(Mouse.current.leftButton.wasPressedThisFrame)
         {
             //Start selection

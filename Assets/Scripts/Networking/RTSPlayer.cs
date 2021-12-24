@@ -7,7 +7,7 @@ public class RTSPlayer : NetworkBehaviour
     [SerializeField] private Transform cameraTransform = null;
     [SerializeField] private LayerMask buildingBlockLayer = new LayerMask();
     [SerializeField] private Building[] buildings = new Building[0];
-    [SerializeField] private float buildingRangeLimit = 5f;
+    [SerializeField] private float buildingRangeLimit = 8f;
 
     [SyncVar(hook = nameof(ClientHandleResourceUpdated))]
     private int resources = 500;
@@ -22,7 +22,7 @@ public class RTSPlayer : NetworkBehaviour
 
     private Color teamColor = new Color();
     private List<Unit> myUnits = new List<Unit>();
-    private List<Building> myBuildings = new List<Building>();
+    [SerializeField] private List<Building> myBuildings = new List<Building>();
     public Transform GetCameraTransform() => cameraTransform;
 
     public string GetDisplayName() => displayName;
@@ -30,7 +30,6 @@ public class RTSPlayer : NetworkBehaviour
     public List<Unit> GetMyUnits() => myUnits;
     public List<Building> GetMyBuildings() => myBuildings;
     public int GetResources() => resources;
-
     public bool GetIsPartyOwner() => isPartyOwner;
 
     public bool CanPlaceBuilding(BoxCollider buildingCollider, Vector3 point)
@@ -56,6 +55,7 @@ public class RTSPlayer : NetworkBehaviour
     #region  Server
     public override void OnStartServer()
     {
+        //Debug.Log("OnStartServer"); 
         Unit.ServerOnUnitSpawned += ServerHandleUnitSpawned;
         Unit.ServerOnUnitDespawned += ServerHandleUnitDespawned;
         Building.ServerOnBuildingSpawned += ServerHandleBuildingSpawned;
@@ -94,7 +94,6 @@ public class RTSPlayer : NetworkBehaviour
         Building buildingToPlace = null;
         foreach (Building building in buildings)
         {
-
             if (building.GetId() == buildingId)
             {
                 buildingToPlace = building;
@@ -109,6 +108,7 @@ public class RTSPlayer : NetworkBehaviour
         BoxCollider buildingCollider = buildingToPlace.GetComponent<BoxCollider>();
         if (!CanPlaceBuilding(buildingCollider, point)) return;
 
+        resources -= buildingToPlace.GetPrice();
         GameObject buildingInstance =
             Instantiate(buildingToPlace.gameObject, point, buildingToPlace.transform.rotation);
 
@@ -154,6 +154,7 @@ public class RTSPlayer : NetworkBehaviour
     #region Client
     public override void OnStartAuthority() // host and client callback this function for getting authority
     {
+        //Debug.Log("OnStartAuthority");
         if (NetworkServer.active) return;
 
         Unit.AuthorityOnUnitSpawned += AuthorityHandleUnitSpawned;
@@ -161,10 +162,13 @@ public class RTSPlayer : NetworkBehaviour
 
         Building.AuthorityOnBuildingSpawned += AuthorityHandleBuildingSpawned;
         Building.AuthorityOnBuildingDespawned += AuthorityHandleBuildingDespawned;
+
+        
     }
 
     public override void OnStartClient()
     {
+        //Debug.Log("OnStartClient");
         if (NetworkServer.active) return; // prevent add twice in host
         DontDestroyOnLoad(gameObject);
         ((RTSNetworkManager)NetworkManager.singleton).Players.Add(this);

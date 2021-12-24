@@ -6,6 +6,7 @@ public class Health : NetworkBehaviour
     [SerializeField] private int maxHealth = 100;
     [SyncVar(hook = nameof(HandleHealthUpdated))]
     private int currentHealth;
+    public int GetCurrentHealth() => currentHealth;
     public event Action ServerOnDie;
     public event Action<int, int> ClientOnHealthUpdated;
 
@@ -38,8 +39,25 @@ public class Health : NetworkBehaviour
         //Debug.Log("die");
     }
 
+    [Command]
+    public void CmdDealDamage(int damageAmount)
+    {
+        DealDamage(damageAmount);
+    }
 
-    
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            if (!hasAuthority) return;
+            CmdDealDamage(currentHealth);
+        }
+    }
+#if UNITY_EDITOR
+
+#endif
+
     #endregion
 
     #region Client

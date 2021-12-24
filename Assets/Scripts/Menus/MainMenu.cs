@@ -29,8 +29,6 @@ public class MainMenu : MonoBehaviour
             return;
         }
         NetworkManager.singleton.StartHost();
-
-
     }
 
     private void OnLobbyCreated(LobbyCreated_t callback)
